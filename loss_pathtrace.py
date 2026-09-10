@@ -1,26 +1,3 @@
-"""Losses for the interventional, index-free ENSO pathway-trace model.
-
-The forecast objective remains the project's tested :class:`ENSOCTMLossV2`.
-The additional terms only shape the *representation* of the explicit pathway
-trace:
-
-* sparse per-forecast pathway allocation, so a forecast can name a dominant
-  route instead of assigning equal importance to every field;
-* batch-level pathway coverage, so sparsity cannot collapse the whole model
-  onto one convenient map group;
-* late-tick convergence, so the exposed execution trace is a genuine
-  refinement trajectory rather than unbounded hidden-state drift;
-* a weak update-size penalty for numerical stability.
-
-For the explicit-graph v3 model the same class can additionally train weak
-evidence probes, monotone forecast refinement, late/early update contraction,
-and bounded visible messages.  These terms shape optimization only; deletion,
-message ablation and state patching remain held-out evaluation operations.
-
-No input-deletion or state-patching loss is used here.  Those operations are
-held out for the intervention API at evaluation time; otherwise a paper could
-mistake a trained-to-pass diagnostic for independent explanation faithfulness.
-"""
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
@@ -32,7 +9,6 @@ from loss_v2 import ENSOCTMLossV2
 
 
 class ENSOPathTraceLoss(ENSOCTMLossV2):
-    """Forecast loss plus non-tautological pathway-trace regularization."""
 
     def __init__(
         self,
