@@ -1,32 +1,3 @@
-"""
-仅保留与标量 Nino3.4 输出兼容的功能:
-  - EarlyStopping
-  - Nino3.4 技巧衰减曲线 (ACC / RMSE vs lead time)
-  - Nino3.4 时间序列对比图
-  - Nino3.4 季节性 SPB 热力图
-  - Nino3.4 极端事件案例
-  - 功率谱分析
-  - Nino3.4 lead correlation
-  - 季节-提前期热力图
-  - 保存 CSV
-
-[修改说明 v2]
-  与 CTEFNet 论文采用相同的评估指标：
-    "three-month-moving-averaged Niño 3.4 index"
-  ⚠ 关键：3MA 作用在 Nino3.4【时间序列】上，而不是作用在算完的 ACC 数组上。
-    先平滑时间序列 → 再算 ACC，才能真正去除高频噪声，使长 lead ACC 明显提升。
-
-  公共函数：
-    smooth_ts_3ma         — 对 (N, T) 矩阵沿 lead 维做 3 个月中心滑动平均
-    compute_acc_per_lead  — 逐 lead 计算原始 ACC（作用于原始时间序列）
-    compute_acc_3ma       — 先平滑时间序列再算 ACC（与 CTEFNet 论文一致）
-    compute_effective_lead — 返回 ACC_3MA 首次低于阈值（默认 0.5）的有效月数
-
-  修改的绘图函数：
-    evaluate_nino34_skill_decay  — 同时绘制原始 ACC 和 3MA-ACC，CSV 增加 ACC_3MA 列
-    plot_nino34_lead_correlation — 每条模型曲线同时绘制虚线版 3MA-ACC
-"""
-
 import torch
 import numpy as np
 import os
@@ -40,7 +11,7 @@ from scipy.signal import welch
 from scipy.interpolate import RectBivariateSpline
 from matplotlib.ticker import MaxNLocator
 
-INIT_MONTH = {'RechargeLatentNet', 'ENSOFormer', 'GuidedENSONet', 'PhysDualNetV2'}
+INIT_MONTH = {}
 
 
 class EarlyStopping:
@@ -92,8 +63,6 @@ def smooth_ts_3ma(series: np.ndarray) -> np.ndarray:
     """
     对 (N, T) 时间序列矩阵沿 lead 维（axis=1）做 3 个月中心滑动平均。
 
-    这是 CTEFNet 论文 "three-month-moving-averaged Niño 3.4 index" 的
-    正确实现位置：平滑的对象是【时间序列本身】，而不是算完的 ACC 数组。
 
     边界处理：
       t=0   : mean(t=0, t=1)        只用右侧邻居
@@ -421,16 +390,10 @@ def plot_nino34_lead_correlation(all_preds_dict, all_trues, stats,
 def plot_seasonal_lead_heatmap(all_preds, all_trues, stats, save_dir,
                                 args, test_times):
     """
-    SPB 季节性热力图（平滑论文风格）:
+    SPB 季节性热力图:
       X = Prediction Lead
       Y = Target Calendar Month
       Color = ACC
-
-    风格改进：
-      1. 用 contourf 替代 pcolormesh，去掉像素块感
-      2. 用高斯平滑后的矩阵画填色和等值线
-      3. 添加黑色等值线与数值标注，更接近论文图风格
-      4. 保留原始 acc_matrix 计算逻辑，只改变显示方式
     """
     print("\n--- Generating Seasonal Lead Heatmap (Smooth Contour Style) ---")
     if test_times is None or len(test_times) == 0:
@@ -587,21 +550,6 @@ def plot_seasonal_lead_heatmap(all_preds, all_trues, stats, save_dir,
 def plot_init_month_lead_heatmap(all_preds, all_trues, stats, save_dir,
                                   args, test_times):
     """
-    Init-month SPB 图:
-      X = Prediction Lead
-      Y = Initialization Month，也就是输入窗口最后一个月
-      Color = ACC
-
-    与 Target-month SPB 的区别：
-      Target-month SPB:
-          y 轴 = y[b, lead] 对应的验证月份
-
-      Init-month SPB:
-          y 轴 = 输入窗口最后一个月
-          init_date = test_times[b] + input_len - 1 months
-
-    这个图更适合判断：
-      从哪个月份开始做 ENSO 预测更困难。
     """
     print("\n--- Generating Init-month Lead Heatmap ---")
 
