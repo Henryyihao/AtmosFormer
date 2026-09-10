@@ -38,18 +38,9 @@ from utils import (
 
 from models import get_model_dict
 
-CTM_MODELS = {"ENSOCTM", "ENSOCTM_OfficialPINN",
-              "ENSOCTM_OfficialPINN_v2", "ENSOCTM_OfficialPINN_v3",
-              "ENSOCTM_OfficialPINN_v4", "ENSOPathTrace",
-              "ENSOPathwayTrace", "PathTrace", "ENSOPathTrace_v2",
-              "ENSOPathTraceV2", "PathTrace_v2"}
-PATH_TRACE_MODELS = {"ENSOPathTrace", "ENSOPathwayTrace", "PathTrace",
-                     "ENSOPathTrace_v2", "ENSOPathTraceV2", "PathTrace_v2",
-                     "ENSOPathTrace_v3", "ENSOPathTraceV3", "PathTrace_v3"}
-MIST_MODELS = {
-    "MIST_ENSO", "MIST-ENSO", "MISTENSO",
-    "MIST_ENSO_V2", "MIST-ENSO-V2", "MISTENSO_V2",
-}
+CTM_MODELS = {}
+PATH_TRACE_MODELS = {}
+MIST_MODELS = {}
 
 
 class DomainIdDataset(Dataset):
