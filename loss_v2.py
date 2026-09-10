@@ -1,21 +1,3 @@
-"""
-loss_v2.py — Enhanced loss for ENSOCTM_v2 single-target + auxiliary design.
-
-Key changes from BarrierStateLoss:
-1) Primary target is Nino3.4 only; auxiliary is thermocline_tilt
-2) Auxiliary uses a taper schedule: full weight at short leads, fading at long leads
-3) Physics ODE regularization for long leads (recharge-discharge dynamics)
-4) SPB-aware seasonal weighting (harder spring-barrier months get more weight)
-5) Cross-lead smoothness regularization (predictions shouldn't jump erratically)
-6) CTM thought loss integrated
-7) v2.1: NLL calibration loss for uncertainty
-8) v2.1: Amplitude-asymmetric loss for extreme events
-9) v2.1: Correlation loss for direct skill optimization
-10) v2.1: Ponder cost for adaptive halting
-11) v2.3: Halt entropy regularization (prevents tick collapse)
-12) v2.3: Amplitude overshoot penalty (prevents false alarms)
-13) SPB v3: Long-lead spread/slope and phase matching for amplitude preservation
-"""
 from __future__ import annotations
 
 import torch
@@ -24,11 +6,6 @@ import torch.nn.functional as F
 
 
 class ENSOCTMLossV2(nn.Module):
-    """Loss for ENSOCTM_v2 with target_dim=2: [nino34, thermocline_tilt].
-
-    The loss is structured to maximize Nino3.4 prediction skill while using
-    thermocline_tilt as a physics-grounded auxiliary signal.
-    """
 
     def __init__(
         self,
