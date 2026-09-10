@@ -1,34 +1,3 @@
-"""
-nino34_utils.py — 60S–60N four-variable ENSO region utilities
-=============================================================
-
-This file is the single source of truth for low-dimensional regional indices
-used by the cleaned four-variable experiment:
-
-    sst, hc, slp, tauv
-
-The current processed grid is expected to be cropped to 60S–60N, usually with
-longitude in 0–360 coordinates (0, 2, ..., 358).  All default regions below are
-inside 60S–60N.  Longitude bounds are still defined in 0–360 degrees and are
-automatically adapted when a ±180 longitude array is provided.
-
-Core supervised targets
------------------------
-Nino3.4:
-    5S–5N, 170W–120W  -> lon 190–240 in 0–360 coordinates
-
-HC-based WWV / recharge proxy:
-    5S–5N, 120E–80W   -> lon 120–280 in 0–360 coordinates
-
-Notes
------
-- ``find_nino34_indices`` and ``find_wwv_indices`` return rectangular slices for
-  the dataset target builder.  They are safe for the current 0–360 grid.
-- Mask-based helpers such as ``region_mask_bool`` and
-  ``area_weighted_mean_series`` are safer for diagnostic regions and for
-  longitude intervals that cross the dateline under a ±180 grid.
-"""
-
 from __future__ import annotations
 
 from typing import Dict, Tuple
